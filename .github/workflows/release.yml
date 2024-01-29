@@ -15,7 +15,10 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - run: pip install build
-      - run: python -m build
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+      - name: Build
+        run: poetry build
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
