@@ -15,9 +15,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v2
-      - name: Buld
-        run: poetry build
+      - run: pip install build
+      - run: python -m build
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
