@@ -3,11 +3,13 @@ from permission_manager import (
     PermissionManagerDenied,
     PermissionResult,
 )
+from permission_manager.decorators import alias
 
 
 class SamplePermissionManager(PermissionManager):
     counter = 0
 
+    @alias('positive')
     def has_true_permission(self):
         return True
 
