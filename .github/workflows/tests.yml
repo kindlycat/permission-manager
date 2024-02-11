@@ -24,6 +24,6 @@ jobs:
       - name: Run tests
         run: poetry run pytest
       - name: ruff format check
-        run: ruff format --check .
+        run: poetry run ruff format --check .
       - name: ruff check
-        run: ruff check --output-format=github .
+        run: poetry run ruff check --output-format=github .
