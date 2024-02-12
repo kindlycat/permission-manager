@@ -1,4 +1,5 @@
 import re
+from contextlib import suppress
 from functools import cached_property
 from typing import Any, Dict, Iterable, Optional, Union
 
@@ -16,6 +17,7 @@ class BasePermissionMeta(type):
     def __new__(cls, *args, **kwargs) -> type:
         new_cls = super().__new__(cls, *args, **kwargs)
         new_cls._actions = {}
+        new_cls._aliases = {}
         new_cls.bind_actions()
         return new_cls
 
@@ -28,6 +30,11 @@ class BasePermissionMeta(type):
                 )
                 setattr(cls, attr_name, permission_fn)
                 cls._actions[action_name.group(1)] = permission_fn
+
+                if alias := getattr(
+                    permission_fn, '_permission_manager_alias', None
+                ):
+                    cls._aliases[alias] = permission_fn
 
 
 class BasePermissionManager(metaclass=BasePermissionMeta):
@@ -55,8 +62,11 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
     def has_permission(self, action: str) -> bool:
         """Check permission"""
 
-        try:
+        with suppress(KeyError):
             return self._actions[action](self)
+
+        try:
+            return self._aliases[action](self)
         except KeyError as exc:
             raise ValueError(
                 f'"{self.__class__.__name__}" doesn\'t have "{action}" action.'

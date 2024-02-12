@@ -11,9 +11,9 @@ def catch_denied_exception(fn):
     """
 
     @wraps(fn)
-    def wrapper(*args, **kwargs):
+    def wrapper(self):
         try:
-            return fn(*args, **kwargs)
+            return fn(self)
         except PermissionManagerDenied as e:
             return PermissionResult(str(e) or None)
 
@@ -24,14 +24,24 @@ def cache_permission(fn):
     """Cache permission result"""
 
     @wraps(fn)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self):
         if not self.cache:
-            return fn(self, *args, **kwargs)
+            return fn(self)
 
         try:
             return self._cache[fn.__name__]
         except KeyError:
-            self._cache[fn.__name__] = fn(self, *args, **kwargs)
+            self._cache[fn.__name__] = fn(self)
             return self._cache[fn.__name__]
 
     return wrapper
+
+
+def alias(name):
+    """Add alias to permission"""
+
+    def decorator(fn):
+        fn._permission_manager_alias = name
+        return fn
+
+    return decorator

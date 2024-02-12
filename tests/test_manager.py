@@ -145,3 +145,9 @@ def test_resolve():
         'result': {'allow': False, 'message': None},
         'result_with_message': {'allow': False, 'message': ['Test message']},
     }
+
+
+def test_alias():
+    permission_manager = SamplePermissionManager()
+
+    assert permission_manager.has_permission('positive') is True
