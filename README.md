@@ -2,6 +2,12 @@
 
 A simple way to manage object permissions.
 
+## Install
+
+```bash
+pip install permission-manager
+```
+
 ## Example
 
 Use `BasePermissionManager`
