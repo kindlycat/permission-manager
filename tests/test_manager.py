@@ -111,7 +111,10 @@ def test_permission_manager_from_context():
         parent=parent,
         parent_permission_manager=parent_permission_manager,
     )
-    assert permission_manager.parent_permission_manager is parent_permission_manager
+    assert (
+        permission_manager.parent_permission_manager
+        is parent_permission_manager
+    )
 
 
 @pytest.mark.parametrize('can_view,can_edit', product([True, False], repeat=2))
