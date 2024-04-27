@@ -155,6 +155,9 @@ class PermissionManager(BasePermissionManager):
     def parent_permission_manager(self) -> 'PermissionManager':
         """Get parent permission manager"""
 
+        if from_context := self.context.get('parent_permission_manager'):
+            return from_context
+
         return self.parent.permission_manager(
             user=self.user,
             instance=self.parent,

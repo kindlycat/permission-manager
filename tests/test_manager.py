@@ -101,6 +101,19 @@ def test_parent():
     assert permission_manager.parent is parent
 
 
+def test_permission_manager_from_context():
+    class Parent:
+        permission_manager = ParentPermissionManager
+
+    parent = Parent()
+    parent_permission_manager = SamplePermissionManager(instance=parent)
+    permission_manager = ChildPermissionManager(
+        parent=parent,
+        parent_permission_manager=parent_permission_manager,
+    )
+    assert permission_manager.parent_permission_manager is parent_permission_manager
+
+
 @pytest.mark.parametrize('can_view,can_edit', product([True, False], repeat=2))
 def test_parent_permission_manager(can_view, can_edit):
     @dataclasses.dataclass
