@@ -1,6 +1,6 @@
-class PermissionManagerException(Exception):
-    """Base permission manager exception"""
+class PermissionManagerError(Exception):
+    """Base permission manager exception."""
 
 
-class PermissionManagerDenied(PermissionManagerException):
-    """Exception for negative result"""
+class PermissionManagerDenied(PermissionManagerError):  # noqa: N818
+    """Exception for negative result."""

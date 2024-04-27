@@ -1,18 +1,19 @@
 import re
+from collections.abc import Iterable
 from contextlib import suppress
 from functools import cached_property
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import Any
 
-from .result import PermissionResult
 from .decorators import cache_permission, catch_denied_exception
-from .exceptions import PermissionManagerException
+from .exceptions import PermissionManagerError
+from .result import PermissionResult
 
 
 permission_re = re.compile(r'^has_(\w+)_permission$')
 
 
 class BasePermissionMeta(type):
-    """Metaclass for bind permission actions"""
+    """Metaclass for bind permission actions."""
 
     def __new__(cls, *args, **kwargs) -> type:
         new_cls = super().__new__(cls, *args, **kwargs)
@@ -22,7 +23,7 @@ class BasePermissionMeta(type):
         return new_cls
 
     def bind_actions(cls) -> None:
-        """Collect all actions, add decorators"""
+        """Collect all actions, add decorators."""
         for attr_name in dir(cls):
             if action_name := permission_re.match(attr_name):
                 permission_fn = cache_permission(
@@ -32,18 +33,19 @@ class BasePermissionMeta(type):
                 cls._actions[action_name.group(1)] = permission_fn
 
                 if alias := getattr(
-                    permission_fn, '_permission_manager_alias', None
+                    permission_fn, 'permission_manager_alias', None
                 ):
                     cls._aliases[alias] = permission_fn
 
 
 class BasePermissionManager(metaclass=BasePermissionMeta):
-    """Base permission manager class"""
+    """Base permission manager class."""
 
     def __init__(
         self,
-        user: Optional[Any] = None,
-        instance: Optional[Any] = None,
+        *,
+        user: Any | None = None,
+        instance: Any | None = None,
         cache: bool = False,
         **context,
     ) -> None:
@@ -54,31 +56,34 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         self._cache = {}
 
     @classmethod
-    def create(cls, name: str, **type_dict) -> type:
-        """Create new manager dynamically"""
-
+    def create(
+        cls: type['BasePermissionManager'],
+        name: str,
+        **type_dict,
+    ) -> type:
+        """Create new manager dynamically."""
         return type(name, (cls,), type_dict)
 
     def has_permission(self, action: str) -> bool:
-        """Check permission"""
-
+        """Check permission."""
         with suppress(KeyError):
             return self._actions[action](self)
 
         try:
             return self._aliases[action](self)
         except KeyError as exc:
-            raise ValueError(
+            msg = (
                 f'"{self.__class__.__name__}" doesn\'t have "{action}" action.'
-            ) from exc
+            )
+            raise ValueError(msg) from exc
 
     def get_result_value(
         self,
-        value: Union[bool, dict, PermissionResult],
+        *,
+        value: bool | dict | PermissionResult,
         with_messages: bool = False,
-    ) -> Union[bool, dict]:
-        """Serialize result value"""
-
+    ) -> bool | dict:
+        """Serialize result value."""
         if isinstance(value, dict):
             return {
                 k: self.get_result_value(
@@ -99,11 +104,11 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
 
     def resolve(
         self,
-        actions: Optional[Iterable] = None,
+        *,
+        actions: Iterable | None = None,
         with_messages: bool = False,
-    ) -> Dict:
-        """Resolve list of actions"""
-
+    ) -> dict:
+        """Resolve list of actions."""
         if actions is None:
             actions = self._actions.keys()
 
@@ -117,44 +122,44 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
 
 
 class PermissionManager(BasePermissionManager):
-    """Permission manager class with additional functionality to check parent permissions"""
+    """Permission manager class.
 
-    parent_attr: Optional[str] = None
+    Permission manager class with additional functionality
+    to check parent permissions.
+    """
+
+    parent_attr: str | None = None
 
     @cached_property
     def parent(self) -> Any:
-        """Get parent object"""
-
+        """Get parent object."""
         if parent := self.context.get('parent'):
             return parent
         return self.get_parent_from_instance()
 
     def get_parent_from_instance(self) -> Any:
-        """Get parent object from instance"""
-
+        """Get parent object from instance."""
         if not self.instance:
-            raise PermissionManagerException('Instance is missing.')
+            msg = 'Instance is missing.'
+            raise PermissionManagerError(msg)
 
         if not self.parent_attr:
-            raise PermissionManagerException(
-                'Attribute `parent_attr` is not defined.'
-            )
+            msg = 'Attribute `parent_attr` is not defined.'
+            raise PermissionManagerError(msg)
 
         return getattr(self.instance, self.parent_attr)
 
     @property
     def has_parent(self) -> bool:
-        """Check if object has parent"""
-
+        """Check if object has parent."""
         try:
             return bool(self.parent)
-        except PermissionManagerException:
+        except PermissionManagerError:
             return False
 
     @cached_property
     def parent_permission_manager(self) -> 'PermissionManager':
-        """Get parent permission manager"""
-
+        """Get parent permission manager."""
         if from_context := self.context.get('parent_permission_manager'):
             return from_context
 

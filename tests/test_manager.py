@@ -4,6 +4,7 @@ from itertools import product
 import pytest
 
 from permission_manager import PermissionResult
+
 from .managers import (
     ChildPermissionManager,
     ParentPermissionManager,
@@ -117,7 +118,9 @@ def test_permission_manager_from_context():
     )
 
 
-@pytest.mark.parametrize('can_view,can_edit', product([True, False], repeat=2))
+@pytest.mark.parametrize(
+    ('can_view', 'can_edit'), product([True, False], repeat=2)
+)
 def test_parent_permission_manager(can_view, can_edit):
     @dataclasses.dataclass
     class Parent:
