@@ -23,4 +23,4 @@ check: ## Run linters check
 
 .PHONY: reformat
 reformat: ## Run linters check
-	@docker run --rm -it -v "$(CURDIR):/code" $(PROJECT_NAME) /bin/bash -c 'ruff format .; ruff check . --fix'
+	@docker run --rm -it -v "$(CURDIR):/code" $(PROJECT_NAME) /bin/bash -c 'ruff format .; ruff check . --fix $(c)'
