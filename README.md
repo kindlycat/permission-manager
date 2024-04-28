@@ -66,9 +66,9 @@ manager.has_permission('access')
 manager.resolve()
 # > {'access': False, 'create': True, 'delete': False}
 manager.resolve(with_messages=True)
-# > {'access': {'allow': False, 'message': ['Due status']},
-#    'create': {'allow': True, 'message': None},
-#    'delete': {'allow': False, 'message': None}}
+# > {'access': {'allow': False, 'messages': ['Due status']},
+#    'create': {'allow': True, 'messages': None},
+#    'delete': {'allow': False, 'messages': None}}
 ```
 
 Also, it's include `PermissionManager`, which add additional functionality to check parent permissions

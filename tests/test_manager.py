@@ -4,6 +4,7 @@ from itertools import product
 import pytest
 
 from permission_manager import PermissionResult
+
 from .managers import (
     ChildPermissionManager,
     ParentPermissionManager,
@@ -101,7 +102,25 @@ def test_parent():
     assert permission_manager.parent is parent
 
 
-@pytest.mark.parametrize('can_view,can_edit', product([True, False], repeat=2))
+def test_permission_manager_from_context():
+    class Parent:
+        permission_manager = ParentPermissionManager
+
+    parent = Parent()
+    parent_permission_manager = SamplePermissionManager(instance=parent)
+    permission_manager = ChildPermissionManager(
+        parent=parent,
+        parent_permission_manager=parent_permission_manager,
+    )
+    assert (
+        permission_manager.parent_permission_manager
+        is parent_permission_manager
+    )
+
+
+@pytest.mark.parametrize(
+    ('can_view', 'can_edit'), product([True, False], repeat=2)
+)
 def test_parent_permission_manager(can_view, can_edit):
     @dataclasses.dataclass
     class Parent:
@@ -140,10 +159,10 @@ def test_resolve():
         with_messages=True,
     )
     assert resolved == {
-        'true': {'allow': True, 'message': None},
-        'false': {'allow': False, 'message': None},
-        'result': {'allow': False, 'message': None},
-        'result_with_message': {'allow': False, 'message': ['Test message']},
+        'true': {'allow': True, 'messages': None},
+        'false': {'allow': False, 'messages': None},
+        'result': {'allow': False, 'messages': None},
+        'result_with_message': {'allow': False, 'messages': ['Test message']},
     }
 
 

@@ -1,17 +1,19 @@
+from collections.abc import Callable
 from functools import wraps
 
 from .exceptions import PermissionManagerDenied
 from .result import PermissionResult
 
 
-def catch_denied_exception(fn):
-    """
+def catch_denied_exception(fn: Callable) -> Callable:
+    """Decorator that catches PermissionManagerDenied exception.
+
     Catch `PermissionManagerDenied` exception and return
     PermissionResult instead
     """
 
     @wraps(fn)
-    def wrapper(self):
+    def wrapper(self) -> Callable | PermissionResult:
         try:
             return fn(self)
         except PermissionManagerDenied as e:
@@ -20,11 +22,11 @@ def catch_denied_exception(fn):
     return wrapper
 
 
-def cache_permission(fn):
-    """Cache permission result"""
+def cache_permission(fn: Callable) -> Callable:
+    """Decorator that cache permission result."""
 
     @wraps(fn)
-    def wrapper(self):
+    def wrapper(self) -> Callable:
         if not self.cache:
             return fn(self)
 
@@ -37,11 +39,11 @@ def cache_permission(fn):
     return wrapper
 
 
-def alias(name):
-    """Add alias to permission"""
+def alias(name: str) -> Callable:
+    """Decorator that add alias to permission."""
 
-    def decorator(fn):
-        fn._permission_manager_alias = name
+    def decorator(fn) -> Callable:
+        fn.permission_manager_alias = name
         return fn
 
     return decorator
