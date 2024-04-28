@@ -159,10 +159,10 @@ def test_resolve():
         with_messages=True,
     )
     assert resolved == {
-        'true': {'allow': True, 'message': None},
-        'false': {'allow': False, 'message': None},
-        'result': {'allow': False, 'message': None},
-        'result_with_message': {'allow': False, 'message': ['Test message']},
+        'true': {'allow': True, 'messages': None},
+        'false': {'allow': False, 'messages': None},
+        'result': {'allow': False, 'messages': None},
+        'result_with_message': {'allow': False, 'messages': ['Test message']},
     }
 
 

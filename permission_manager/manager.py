@@ -97,7 +97,7 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         if with_messages:
             result = {
                 'allow': result,
-                'message': getattr(value, 'returned_message', None),
+                'messages': getattr(value, 'returned_message', None),
             }
         return result
 
