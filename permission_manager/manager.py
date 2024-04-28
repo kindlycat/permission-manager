@@ -72,10 +72,9 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         try:
             return self._aliases[action](self)
         except KeyError as exc:
-            msg = (
+            raise ValueError(
                 f'"{self.__class__.__name__}" doesn\'t have "{action}" action.'
-            )
-            raise ValueError(msg) from exc
+            ) from exc
 
     def get_result_value(
         self,
@@ -98,7 +97,7 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         if with_messages:
             result = {
                 'allow': result,
-                'message': getattr(value, 'message', None),
+                'message': getattr(value, 'returned_message', None),
             }
         return result
 
@@ -140,12 +139,12 @@ class PermissionManager(BasePermissionManager):
     def get_parent_from_instance(self) -> Any:
         """Get parent object from instance."""
         if not self.instance:
-            msg = 'Instance is missing.'
-            raise PermissionManagerError(msg)
+            raise PermissionManagerError('Instance is missing.')
 
         if not self.parent_attr:
-            msg = 'Attribute `parent_attr` is not defined.'
-            raise PermissionManagerError(msg)
+            raise PermissionManagerError(
+                'Attribute `parent_attr` is not defined.'
+            )
 
         return getattr(self.instance, self.parent_attr)
 

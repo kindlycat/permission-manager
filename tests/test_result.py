@@ -10,9 +10,26 @@ def test_value(value):
     assert result.message is None
 
 
+@pytest.mark.parametrize('value', [True, False])
 @pytest.mark.parametrize('message', ['test', ['1', '2']])
-def test_message(message):
-    result = PermissionResult(message=message)
+def test_message(value, message):
+    result = PermissionResult(value=value, message=message)
     if not isinstance(message, list):
         message = [message]
     assert result.message == message
+
+
+@pytest.mark.parametrize(
+    ('value', 'message_if_false', 'message', 'expected'),
+    [
+        (True, True, ['Test'], None),
+        (False, False, ['Test'], ['Test']),
+        (True, False, ['Test'], ['Test']),
+        (False, True, ['Test'], ['Test']),
+    ],
+)
+def test_returned_message(value, message_if_false, message, expected):
+    result = PermissionResult(
+        value=value, message=message, message_if_false=message_if_false
+    )
+    assert result.returned_message == expected
