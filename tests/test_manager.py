@@ -3,7 +3,9 @@ from itertools import product
 
 import pytest
 
-from permission_manager import PermissionResult
+from permission_manager import BasePermissionManager, PermissionResult
+from permission_manager.decorators import alias
+from permission_manager.exceptions import AliasAlreadyExistsError
 
 from .managers import (
     ChildPermissionManager,
@@ -166,7 +168,29 @@ def test_resolve():
     }
 
 
-def test_alias():
+@pytest.mark.parametrize(
+    ('action', 'result'),
+    [
+        ('positive', True),
+        ('negative', False),
+        ('denial', False),
+    ],
+)
+def test_alias(action, result):
     permission_manager = SamplePermissionManager()
 
-    assert permission_manager.has_permission('positive') is True
+    assert permission_manager.has_permission(action) is result
+
+
+def test_alias_already_exists_negative():
+    msg = 'The alias "alias" is already in use for "has_create_permission".'
+    with pytest.raises(AliasAlreadyExistsError, match=msg):
+
+        class TestPermissionManager(BasePermissionManager):
+            @alias(['alias'])
+            def has_create_permission(self) -> bool:
+                return True
+
+            @alias(['alias'])
+            def has_update_permission(self) -> bool:
+                return True
