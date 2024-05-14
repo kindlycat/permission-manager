@@ -9,13 +9,13 @@ class PermissionResult:
         message (str | list | None): The message associated with the
             permission result.
         value (bool): The boolean value indicating the permission result.
-        message_if_false (bool): A flag indicating whether to include the
-            message when the value is False.
+        message_if_true (bool): A flag indicating whether to include the
+            message when the value is True.
     """
 
     message: str | list | None = None
     value: bool = False
-    message_if_false: bool = True
+    message_if_true: bool = False
 
     def __post_init__(self) -> None:
         """Ensure the value is a list."""
@@ -34,12 +34,12 @@ class PermissionResult:
 
     @property
     def returned_message(self) -> list | None:
-        """Return the message based on the value and message_if_false flag.
+        """Return the message based on the value and message_if_true flag.
 
         Returns:
             list | None: The message associated with the permission result,
-                or None if the value is True and message_if_false is True.
+                or None if the value is True and message_if_true is False.
         """
-        if self.value and self.message_if_false:
+        if self.value and not self.message_if_true:
             return None
         return self.message
