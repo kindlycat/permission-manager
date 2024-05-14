@@ -5,7 +5,7 @@ from functools import cached_property
 from typing import Any
 
 from .decorators import cache_permission, catch_denied_exception
-from .exceptions import PermissionManagerError
+from .exceptions import AliasAlreadyExistsError, PermissionManagerError
 from .result import PermissionResult
 
 
@@ -32,9 +32,13 @@ class BasePermissionMeta(type):
                 setattr(cls, attr_name, permission_fn)
                 cls._actions[action_name.group(1)] = permission_fn
 
-                if alias := getattr(
-                    permission_fn, 'permission_manager_alias', None
-                ):
+                for alias in getattr(permission_fn, 'aliases', ()):
+                    if alias in cls._aliases:
+                        msg = (
+                            f'The alias "{alias}" is already in use for '
+                            f'"{cls._aliases[alias].__name__}".'
+                        )
+                        raise AliasAlreadyExistsError(msg)
                     cls._aliases[alias] = permission_fn
 
 
