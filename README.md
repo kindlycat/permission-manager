@@ -2,6 +2,8 @@
 
 A simple way to manage object permissions.
 
+Full documentation on [read the docs](https://permission-manager.readthedocs.io/en/latest/).
+
 ## Install
 
 ```bash
