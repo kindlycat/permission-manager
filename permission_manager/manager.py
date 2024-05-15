@@ -6,7 +6,7 @@ from typing import Any
 
 from .decorators import cache_permission, catch_denied_exception
 from .exceptions import AliasAlreadyExistsError, PermissionManagerError
-from .result import PermissionResult
+from .utils import get_result_value
 
 
 permission_re = re.compile(r'^has_(\w+)_permission$')
@@ -80,31 +80,6 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
                 f'"{self.__class__.__name__}" doesn\'t have "{action}" action.'
             ) from exc
 
-    def get_result_value(
-        self,
-        *,
-        value: bool | dict | PermissionResult,
-        with_messages: bool = False,
-    ) -> bool | dict:
-        """Serialize result value."""
-        if isinstance(value, dict):
-            return {
-                k: self.get_result_value(
-                    value=v,
-                    with_messages=with_messages,
-                )
-                for k, v in value.items()
-            }
-
-        result = bool(value)
-
-        if with_messages:
-            result = {
-                'allow': result,
-                'messages': getattr(value, 'returned_message', None),
-            }
-        return result
-
     def resolve(
         self,
         *,
@@ -116,7 +91,7 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
             actions = self._actions.keys()
 
         return {
-            action: self.get_result_value(
+            action: get_result_value(
                 value=self.has_permission(action),
                 with_messages=with_messages,
             )
