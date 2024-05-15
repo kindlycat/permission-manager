@@ -20,16 +20,16 @@ def test_message(value, message):
 
 
 @pytest.mark.parametrize(
-    ('value', 'message_if_false', 'message', 'expected'),
+    ('value', 'message_if_true', 'message', 'expected'),
     [
-        (True, True, ['Test'], None),
+        (True, True, ['Test'], ['Test']),
         (False, False, ['Test'], ['Test']),
-        (True, False, ['Test'], ['Test']),
+        (True, False, ['Test'], None),
         (False, True, ['Test'], ['Test']),
     ],
 )
-def test_returned_message(value, message_if_false, message, expected):
+def test_returned_message(value, message_if_true, message, expected):
     result = PermissionResult(
-        value=value, message=message, message_if_false=message_if_false
+        value=value, message=message, message_if_true=message_if_true
     )
     assert result.returned_message == expected
