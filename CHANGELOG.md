@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.4.1
+- Prevent methods from being decorated twice.
+
 ### 0.4.0
 - Add the ability to specify multiple aliases for a permission.
 - Rename "message_if_false" -> "message_if_true" in PermissionResult.
