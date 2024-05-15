@@ -12,3 +12,4 @@ Permission-manager is an application for managing permissions in python.
     source/usage
     source/managers
     source/result
+    source/utils
