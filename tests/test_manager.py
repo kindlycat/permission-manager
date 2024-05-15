@@ -183,7 +183,11 @@ def test_alias(action, result):
 
 
 def test_alias_already_exists_negative():
-    msg = 'The alias "alias" is already in use for "has_create_permission".'
+    msg = (
+        r'The alias "alias" is already in use for "has_create_permission" in '
+        r'"TestPermissionManager"\.'
+    )
+
     with pytest.raises(AliasAlreadyExistsError, match=msg):
 
         class TestPermissionManager(BasePermissionManager):

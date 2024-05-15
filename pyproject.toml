@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "permission-manager"
-version = "0.4.0"
+version = "0.4.1"
 description = "A simple way to manage object permissions."
 authors = ["Grigory Mishchenko <grishkokot@gmail.com>"]
 readme = "README.md"
@@ -60,6 +60,7 @@ exclude = [
     "node_modules",
     "site-packages",
     "venv",
+    "docs",
 ]
 
 line-length = 79
@@ -77,7 +78,6 @@ ignore = [
 
 fixable = ["ALL"]
 unfixable = []
-exclude = ['docs/*']
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "S106", "RUF012", "D105", "PLR2004"]

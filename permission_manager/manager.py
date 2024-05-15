@@ -26,9 +26,11 @@ class BasePermissionMeta(type):
         """Collect all actions, add decorators."""
         for attr_name in dir(cls):
             if action_name := permission_re.match(attr_name):
-                permission_fn = cache_permission(
-                    catch_denied_exception(getattr(cls, attr_name))
-                )
+                permission_fn = getattr(cls, attr_name)
+                for decorator in (catch_denied_exception, cache_permission):
+                    if not hasattr(permission_fn, decorator.__name__):
+                        permission_fn = decorator(permission_fn)
+
                 setattr(cls, attr_name, permission_fn)
                 cls._actions[action_name.group(1)] = permission_fn
 
@@ -36,7 +38,8 @@ class BasePermissionMeta(type):
                     if alias in cls._aliases:
                         msg = (
                             f'The alias "{alias}" is already in use for '
-                            f'"{cls._aliases[alias].__name__}".'
+                            f'"{cls._aliases[alias].__name__}" in '
+                            f'"{cls.__name__}".'
                         )
                         raise AliasAlreadyExistsError(msg)
                     cls._aliases[alias] = permission_fn

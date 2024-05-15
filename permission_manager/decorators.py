@@ -11,6 +11,7 @@ def catch_denied_exception(fn: Callable) -> Callable:
     Catch `PermissionManagerDenied` exception and return
     PermissionResult instead
     """
+    fn.catch_denied_exception = True
 
     @wraps(fn)
     def wrapper(self) -> Callable | PermissionResult:
@@ -24,6 +25,7 @@ def catch_denied_exception(fn: Callable) -> Callable:
 
 def cache_permission(fn: Callable) -> Callable:
     """Decorator that cache permission result."""
+    fn.cache_permission = True
 
     @wraps(fn)
     def wrapper(self) -> Callable:
@@ -51,7 +53,7 @@ def alias(names: list[str]) -> Callable:
     """
 
     def decorator(fn) -> Callable:
-        fn.aliases = getattr(fn, 'aliases', []) + names
+        fn.aliases = getattr(fn, 'aliases', set()) | set(names)
         return fn
 
     return decorator
