@@ -90,9 +90,6 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         with_messages: bool = False,
     ) -> dict:
         """Resolve list of actions."""
-        if actions is None:
-            actions = self._actions.keys()
-
         return {
             action: get_result_value(
                 value=self.has_permission(action),
