@@ -159,7 +159,16 @@ def test_parent_permission_manager(can_view, can_edit):
 
 def test_resolve():
     permission_manager = SamplePermissionManager()
-    resolved = permission_manager.resolve()
+    resolved = permission_manager.resolve(
+        actions=(
+            'true',
+            'false',
+            'result',
+            'result_with_message',
+            'denied',
+            'cache',
+        )
+    )
     assert resolved == {
         'true': True,
         'false': False,

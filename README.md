@@ -68,9 +68,9 @@ manager.has_permission('delete')
 manager.has_permission('access')
 # > PermissionResult(value=False, message=['Due status'])
 
-manager.resolve()
+manager.resolve(actions=('access', 'create', 'delete'))
 # > {'access': False, 'create': True, 'delete': False}
-manager.resolve(with_messages=True)
+manager.resolve(actions=('access', 'create', 'delete'), with_messages=True)
 # > {'access': {'allow': False, 'messages': ['Due status']},
 #    'create': {'allow': True, 'messages': None},
 #    'delete': {'allow': False, 'messages': None}}

@@ -86,7 +86,7 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
     def resolve(
         self,
         *,
-        actions: Iterable | None = None,
+        actions: Iterable[str],
         with_messages: bool = False,
     ) -> dict:
         """Resolve list of actions."""

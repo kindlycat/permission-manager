@@ -39,9 +39,8 @@ The main method to check permissions.
 The method, which serialize permissions to dictionary.
 
 Arguments:
-    * ``actions``: a list of permissions to resolve. By default, the method
-      serializes all available permissions.
-    * ``with_messages``: A flag indicating whether to include the message from
+    * ``actions``: a list of permissions to resolve.
+    * ``with_messages``: a flag indicating whether to include the message from
       ``PermissionResult``.
 
 .. code-block:: Python
@@ -59,13 +58,10 @@ Arguments:
             return PermissionResult('Permission denied.')
 
     manager = PermissionManager()
-    manager.resolve()
-    # > {'create': True, 'delete': False, 'update': False}
-
     manager.resolve(actions=('create', 'update'))
     # > {'create': True, 'update': False}
 
-    manager.resolve(with_messages=True)
+    manager.resolve(actions=('create', 'update', 'delete'), with_messages=True)
     # > {'create': {'allow': True, 'messages': None},
     #    'delete': {'allow': False, 'messages': ['Permission denied.']},
     #    'update': {'allow': False, 'messages': None}}
