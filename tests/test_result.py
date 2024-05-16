@@ -33,3 +33,20 @@ def test_returned_message(value, message_if_true, message, expected):
         value=value, message=message, message_if_true=message_if_true
     )
     assert result.returned_message == expected
+
+
+@pytest.mark.parametrize('value', [True, False])
+@pytest.mark.parametrize(
+    ('message', 'expect_message'),
+    [
+        (None, None),
+        ('test string', ['test string']),
+        (['test list'], ['test list']),
+    ],
+)
+def test_repr(value, message, expect_message):
+    result = PermissionResult(value=value, message=message)
+    assert (
+        repr(result)
+        == f'PermissionResult(value={value}, message={expect_message})'
+    )

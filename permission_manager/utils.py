@@ -13,15 +13,6 @@ def get_result_value(
     with_messages: bool = False,
 ) -> bool | dict:
     """Serialize result value."""
-    if isinstance(value, dict):
-        return {
-            k: get_result_value(
-                value=v,
-                with_messages=with_messages,
-            )
-            for k, v in value.items()
-        }
-
     result = bool(value)
 
     if with_messages:

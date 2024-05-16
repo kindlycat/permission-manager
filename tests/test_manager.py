@@ -5,7 +5,10 @@ import pytest
 
 from permission_manager import BasePermissionManager, PermissionResult
 from permission_manager.decorators import alias
-from permission_manager.exceptions import AliasAlreadyExistsError
+from permission_manager.exceptions import (
+    AliasAlreadyExistsError,
+    PermissionManagerError,
+)
 
 from .managers import (
     ChildPermissionManager,
@@ -88,7 +91,7 @@ def test_has_permission():
         permission_manager.has_permission('wrong_action')
 
 
-def test_parent():
+def test_parent_positive():
     class Parent:
         pass
 
@@ -99,9 +102,25 @@ def test_parent():
     parent = Parent()
     permission_manager = ChildPermissionManager(parent=parent)
     assert permission_manager.parent is parent
+    assert permission_manager.has_parent is True
 
     permission_manager = ChildPermissionManager(instance=Child(parent=parent))
     assert permission_manager.parent is parent
+    assert permission_manager.has_parent is True
+
+
+def test_parent_negative():
+    permission_manager = ChildPermissionManager()
+    with pytest.raises(PermissionManagerError, match=r'Instance is missing\.'):
+        _ = permission_manager.parent
+    assert permission_manager.has_parent is False
+
+    permission_manager = ChildPermissionManager(instance=object())
+    permission_manager.parent_attr = None
+    msg = r'Attribute `parent_attr` is not defined\.'
+    with pytest.raises(PermissionManagerError, match=msg):
+        _ = permission_manager.parent
+    assert permission_manager.has_parent is False
 
 
 def test_permission_manager_from_context():

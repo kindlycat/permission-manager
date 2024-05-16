@@ -101,9 +101,17 @@ line-ending = "auto"
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "-ra -s"
-
 [tool.ruff.lint.flake8-self]
 ignore-names = ["_actions", "_aliases"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -s -v"
+
+[tool.coverage.run]
+source = ["permission_manager"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+]
