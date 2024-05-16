@@ -1,5 +1,8 @@
 # Permission Manager
 
+![example workflow](https://github.com/kindlycat/permission-manager/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/gh/kindlycat/permission-manager/graph/badge.svg?token=XET0GPM9VW)](https://codecov.io/gh/kindlycat/permission-manager)
+
 A simple way to manage object permissions.
 
 Full documentation on [read the docs](https://permission-manager.readthedocs.io/en/latest/).
