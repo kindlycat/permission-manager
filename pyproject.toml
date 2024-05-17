@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "permission-manager"
-version = "0.4.1"
+version = "0.4.2"
 description = "A simple way to manage object permissions."
 authors = ["Grigory Mishchenko <grishkokot@gmail.com>"]
 readme = "README.md"
