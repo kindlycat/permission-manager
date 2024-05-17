@@ -2,8 +2,8 @@ from permission_manager import (
     PermissionManager,
     PermissionManagerDenied,
     PermissionResult,
+    alias,
 )
-from permission_manager.decorators import alias
 
 
 class SamplePermissionManager(PermissionManager):

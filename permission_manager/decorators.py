@@ -8,8 +8,14 @@ from .result import PermissionResult
 def catch_denied_exception(fn: Callable) -> Callable:
     """Decorator that catches PermissionManagerDenied exception.
 
-    Catch `PermissionManagerDenied` exception and return
-    PermissionResult instead
+    This decorator catches `PermissionManagerDenied` exception and returns a
+    `PermissionResult` instead.
+
+    Args:
+        fn (Callable): The function to be decorated.
+
+    Returns:
+        Callable: The decorated function.
     """
     fn.catch_denied_exception = True
 
@@ -24,7 +30,17 @@ def catch_denied_exception(fn: Callable) -> Callable:
 
 
 def cache_permission(fn: Callable) -> Callable:
-    """Decorator that cache permission result."""
+    """Decorator that caches the permission result.
+
+    This decorator caches the result of the decorated permission function to
+    optimize repeated permission checks.
+
+    Args:
+        fn (Callable): The function to be decorated.
+
+    Returns:
+        Callable: The decorated function.
+    """
     fn.cache_permission = True
 
     @wraps(fn)
@@ -42,14 +58,17 @@ def cache_permission(fn: Callable) -> Callable:
 
 
 def alias(names: list[str]) -> Callable:
-    """Decorator that add aliases to permission.
+    """Decorator that adds aliases to a permission function.
+
+    This decorator allows you to define alternative names (aliases) for the
+    decorated permission function.
 
     Args:
         names (list[str]): The alias name(s) to be added to the permission
             function.
 
     Returns:
-        Callable: decorated function.
+        Callable: The decorated function.
     """
 
     def decorator(fn) -> Callable:

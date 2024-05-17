@@ -110,6 +110,7 @@ addopts = "-ra -s -v"
 
 [tool.coverage.run]
 source = ["permission_manager"]
+omit = ["permission_manager/types.py"]
 
 [tool.coverage.report]
 exclude_also = [
