@@ -3,8 +3,7 @@ from itertools import product
 
 import pytest
 
-from permission_manager import BasePermissionManager, PermissionResult
-from permission_manager.decorators import alias
+from permission_manager import BasePermissionManager, PermissionResult, alias
 from permission_manager.exceptions import (
     AliasAlreadyExistsError,
     PermissionManagerError,
