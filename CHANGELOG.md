@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.4.2
+- Make the "actions" attribute required in the "resolve" method.
+
 ### 0.4.1
 - Prevent methods from being decorated twice.
 
