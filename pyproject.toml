@@ -106,7 +106,7 @@ ignore-names = ["_actions", "_aliases"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra -s -v"
+addopts = "-ra -v"
 
 [tool.coverage.run]
 source = ["permission_manager"]
