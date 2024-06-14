@@ -218,10 +218,10 @@ def test_alias_already_exists_negative():
     with pytest.raises(AliasAlreadyExistsError, match=msg):
 
         class TestPermissionManager(BasePermissionManager):
-            @alias(['alias'])
+            @alias('alias')
             def has_create_permission(self) -> bool:
                 return True
 
-            @alias(['alias'])
+            @alias('alias')
             def has_update_permission(self) -> bool:
                 return True

@@ -9,11 +9,11 @@ from permission_manager import (
 class SamplePermissionManager(PermissionManager):
     counter = 0
 
-    @alias(['positive'])
+    @alias('positive')
     def has_true_permission(self):
         return True
 
-    @alias(['negative', 'denial'])
+    @alias('negative', 'denial')
     def has_false_permission(self):
         return False
 

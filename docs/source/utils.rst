@@ -13,7 +13,7 @@ The decorator that add aliases to permissions.
     from permission_manager.decorators import alias
 
     class PermissionManager(BasePermissionManager):
-        @alias(['update', 'delete'])
+        @alias('update', 'delete')
         def has_create_permission(self) -> bool:
             return True
 

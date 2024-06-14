@@ -57,15 +57,14 @@ def cache_permission(fn: Callable) -> Callable:
     return wrapper
 
 
-def alias(names: list[str]) -> Callable:
+def alias(*names: str) -> Callable:
     """Decorator that adds aliases to a permission function.
 
     This decorator allows you to define alternative names (aliases) for the
     decorated permission function.
 
     Args:
-        names (list[str]): The alias name(s) to be added to the permission
-            function.
+        *names (str): The alias name(s) to be added to the permission function.
 
     Returns:
         Callable: The decorated function.
