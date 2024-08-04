@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "permission-manager"
-version = "0.5.0"
+version = "0.5.1"
 description = "A simple way to manage object permissions."
 authors = ["Grigory Mishchenko <grishkokot@gmail.com>"]
 readme = "README.md"
@@ -17,7 +17,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10"
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.24"
