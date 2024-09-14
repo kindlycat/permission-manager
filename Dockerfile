@@ -1,27 +1,18 @@
 FROM python:3.12.1-slim
 
-ARG DEBIAN_FRONTEND=noninteractive
+COPY --from=ghcr.io/astral-sh/uv:0.4.10 /uv /bin/uv
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONBREAKPOINT=ipdb.set_trace \
-    POETRY_VERSION=1.7.1 \
-    POETRY_VIRTUALENVS_CREATE="false" \
-    POETRY_ACCEPT="true" \
-    POETRY_HOME="/opt/poetry" \
-    WORKDIR=/code
+    WORKDIR=/app
 
-ENV PYTHONPATH=$WORKDIR
+ENV PATH="$WORKDIR/.venv/bin:$PATH" \
+    VIRTUAL_ENV=$WORKDIR/.venv
 
 WORKDIR $WORKDIR
 
-RUN apt-get update \
-    && apt-get install -y curl build-essential
+ADD . $WORKDIR
 
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && ln -s ${POETRY_HOME}/bin/poetry /usr/bin/poetry
-
-COPY poetry.lock pyproject.toml $WORKDIR/
-RUN poetry install --no-root
-
-COPY . $WORKDIR/
+RUN uv sync --frozen
