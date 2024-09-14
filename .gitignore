@@ -10,4 +10,5 @@ coverage.xml
 
 !.gitignore
 !.github
+!.dockerignore
 !.readthedocs.yaml
