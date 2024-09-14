@@ -1,36 +1,39 @@
-[tool.poetry]
+[project]
 name = "permission-manager"
 version = "0.5.1"
 description = "A simple way to manage object permissions."
-authors = ["Grigory Mishchenko <grishkokot@gmail.com>"]
-readme = "README.md"
+authors = [
+    {author = "Grigory Mishchenko", email = "grishkokot@gmail.com"},
+]
 license = "MIT"
-packages = [{include = "permission_manager"}]
-repository = "https://github.com/kindlycat/permission-manager"
+readme = "README.md"
 keywords = ["permissions"]
+repository = "https://github.com/kindlycat/permission-manager"
+requires-python = ">=3.10"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
+dependencies = []
 
-[tool.poetry.dependencies]
-python = ">=3.10"
-
-[tool.poetry.group.dev.dependencies]
-ipython = "^8.24"
-ipdb = "^0.13.13"
-pytest = "^8.1.2"
-ruff = "^0.6.1"
-pytest-cov = "^5.0.0"
-sphinx = "^7.3.7"
-furo = "^2024.4.27"
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.3",
+    "ipython>=8.27",
+    "ipdb>=0.13.13",
+    "pytest>=8.3.3",
+    "ruff>=0.6.5",
+    "pytest-cov>=5.0.0",
+    "sphinx>=8.0.2",
+    "furo>=2024.8.6",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
 exclude = [
