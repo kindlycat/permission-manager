@@ -1,3 +1,4 @@
+import inspect
 from collections.abc import Callable
 from functools import wraps
 
@@ -5,56 +6,57 @@ from .exceptions import PermissionManagerDenied
 from .result import PermissionResult
 
 
-def catch_denied_exception(fn: Callable) -> Callable:
-    """Decorator that catches PermissionManagerDenied exception.
+def wrap_permission(fn: Callable) -> Callable:
+    """Wrap a permission method with caching and error handling.
 
-    This decorator catches `PermissionManagerDenied` exception and returns a
-    `PermissionResult` instead.
+    This decorator-like function detects if the wrapped method is
+    synchronous or asynchronous and applies the appropriate logic
+    for caching results and catching `PermissionManagerDenied`
+    exceptions.
 
     Args:
-        fn (Callable): The function to be decorated.
+        fn: The permission method to be wrapped.
 
     Returns:
-        Callable: The decorated function.
+        A wrapped version of the input function (sync or async).
     """
-    fn.catch_denied_exception = True
+    if inspect.iscoroutinefunction(fn):
+
+        @wraps(fn)
+        async def async_wrapper(
+            self,
+            *args,
+            **kwargs,
+        ) -> bool | PermissionResult:
+            if self.cache and fn.__name__ in self._cache:
+                return self._cache[fn.__name__]
+
+            try:
+                result = await fn(self, *args, **kwargs)
+            except PermissionManagerDenied as e:
+                result = PermissionResult(str(e) or None)
+
+            if self.cache:
+                self._cache[fn.__name__] = result
+            return result
+
+        return async_wrapper
 
     @wraps(fn)
-    def wrapper(self) -> Callable | PermissionResult:
+    def sync_wrapper(self, *args, **kwargs) -> bool | PermissionResult:
+        if self.cache and fn.__name__ in self._cache:
+            return self._cache[fn.__name__]
+
         try:
-            return fn(self)
+            result = fn(self, *args, **kwargs)
         except PermissionManagerDenied as e:
-            return PermissionResult(str(e) or None)
+            result = PermissionResult(str(e) or None)
 
-    return wrapper
+        if self.cache:
+            self._cache[fn.__name__] = result
+        return result
 
-
-def cache_permission(fn: Callable) -> Callable:
-    """Decorator that caches the permission result.
-
-    This decorator caches the result of the decorated permission function to
-    optimize repeated permission checks.
-
-    Args:
-        fn (Callable): The function to be decorated.
-
-    Returns:
-        Callable: The decorated function.
-    """
-    fn.cache_permission = True
-
-    @wraps(fn)
-    def wrapper(self) -> Callable:
-        if not self.cache:
-            return fn(self)
-
-        try:
-            return self._cache[fn.__name__]
-        except KeyError:
-            self._cache[fn.__name__] = fn(self)
-            return self._cache[fn.__name__]
-
-    return wrapper
+    return sync_wrapper
 
 
 def alias(*names: str) -> Callable:
