@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 import re
-from contextlib import suppress
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
-from .decorators import cache_permission, catch_denied_exception
+from .decorators import wrap_permission
 from .exceptions import AliasAlreadyExistsError, PermissionManagerError
 from .utils import get_result_value
 
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
 
     from .result import PermissionResult
     from .types import ResolveWithMessageResult
@@ -43,14 +42,12 @@ class BasePermissionMeta(type):
         """Collect all actions and add decorators.
 
         This method collects all methods that match the permission action
-        pattern, applies necessary decorators.
+        pattern, applies decorators.
         """
         for attr_name in dir(cls):
             if action_name := permission_re.match(attr_name):
                 permission_fn = getattr(cls, attr_name)
-                for decorator in (catch_denied_exception, cache_permission):
-                    if not hasattr(permission_fn, decorator.__name__):
-                        permission_fn = decorator(permission_fn)
+                permission_fn = wrap_permission(permission_fn)
 
                 setattr(cls, attr_name, permission_fn)
                 cls._actions[action_name.group(1)] = permission_fn
@@ -66,16 +63,10 @@ class BasePermissionMeta(type):
                     cls._aliases[alias] = permission_fn
 
 
-class BasePermissionManager(metaclass=BasePermissionMeta):
-    """Base permission manager class.
+class PermissionMixin:
+    """Mixin class for permission logic.
 
-    This class provides basic functionality to manage and check permissions.
-
-    Attributes:
-        user (Any | None): The user for whom permissions are checked.
-        instance (Any | None): The instance associated with the permissions.
-        cache (bool): Whether to cache permission results.
-        context (dict): Additional context for permission checks.
+    This class provides common functionality for permission managers.
     """
 
     def __init__(
@@ -86,7 +77,7 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         cache: bool = False,
         **context,
     ) -> None:
-        """Initialize the BasePermissionManager.
+        """Initialize the PermissionManager.
 
         Args:
             user (Any | None): The user for whom permissions are checked.
@@ -118,6 +109,28 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         """
         return type(name, (cls,), type_dict)
 
+    def _get_action(self, action: str) -> Callable:
+        if action in self._actions:
+            return self._actions[action]
+        if action in self._aliases:
+            return self._aliases[action]
+        raise ValueError(
+            f'"{self.__class__.__name__}" doesn\'t have "{action}" action.'
+        )
+
+
+class BasePermissionManager(PermissionMixin, metaclass=BasePermissionMeta):
+    """Base permission manager class.
+
+    This class provides basic functionality to manage and check permissions.
+
+    Attributes:
+        user (Any | None): The user for whom permissions are checked.
+        instance (Any | None): The instance associated with the permissions.
+        cache (bool): Whether to cache permission results.
+        context (dict): Additional context for permission checks.
+    """
+
     def has_permission(self, action: str) -> bool | PermissionResult:
         """Check if the permission is granted for a specific action.
 
@@ -130,15 +143,7 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         Raises:
             ValueError: If the action is not found in the permissions.
         """
-        with suppress(KeyError):
-            return self._actions[action](self)
-
-        try:
-            return self._aliases[action](self)
-        except KeyError as exc:
-            raise ValueError(
-                f'"{self.__class__.__name__}" doesn\'t have "{action}" action.'
-            ) from exc
+        return self._get_action(action)(self)
 
     def resolve(
         self,
@@ -167,11 +172,8 @@ class BasePermissionManager(metaclass=BasePermissionMeta):
         }
 
 
-class PermissionManager(BasePermissionManager):
-    """Permission manager class with parent checking functionality.
-
-    This class extends the BasePermissionManager to include functionality for
-    checking permissions in a parent context.
+class ParentMixin:
+    """Mixin class with parent checking functionality.
 
     Attributes:
         parent_attr (str | None): The attribute name to access the parent
@@ -227,11 +229,14 @@ class PermissionManager(BasePermissionManager):
             return False
 
     @cached_property
-    def parent_permission_manager(self) -> PermissionManager:
+    def parent_permission_manager(
+        self,
+    ) -> PermissionManager | AsyncPermissionManager:
         """Get the parent permission manager.
 
         Returns:
-            PermissionManager: The parent permission manager.
+            PermissionManager | AsyncPermissionManager: The parent permission
+                manager.
 
         Raises:
             PermissionManagerError: If the parent permission manager cannot be
@@ -245,3 +250,57 @@ class PermissionManager(BasePermissionManager):
             instance=self.parent,
             context=self.context,
         )
+
+
+class PermissionManager(ParentMixin, BasePermissionManager):
+    """Permission manager class with parent checking functionality."""
+
+
+class AsyncBasePermissionManager(
+    PermissionMixin, metaclass=BasePermissionMeta
+):
+    """Base async permission manager class."""
+
+    async def has_permission(self, action: str) -> bool:
+        """Check if the permission is granted for a specific action.
+
+        Args:
+            action (str): The action to check permission for.
+
+        Returns:
+            bool: True if the permission is granted, False otherwise.
+
+        Raises:
+            ValueError: If the action is not found in the permissions.
+        """
+        return await self._get_action(action)(self)
+
+    async def resolve(
+        self,
+        *,
+        actions: Iterable[str],
+        with_messages: bool = False,
+    ) -> dict[str, bool] | dict[str, ResolveWithMessageResult]:
+        """Resolve a list of actions and their permission status.
+
+        Args:
+            actions (Iterable[str]): The list of actions to check.
+            with_messages (bool): Whether to include messages in the result.
+
+        Returns:
+            dict[str, bool] | dict[str, ResolveWithMessageResult]: A dictionary
+                with actions as keys and permission status as values. If
+                `with_messages` is True, the values include permission status
+                and associated messages.
+        """
+        return {
+            action: get_result_value(
+                value=await self.has_permission(action),
+                with_messages=with_messages,
+            )
+            for action in actions
+        }
+
+
+class AsyncPermissionManager(ParentMixin, AsyncBasePermissionManager):
+    """Async permission manager class with parent checking functionality."""
