@@ -124,3 +124,23 @@ post.status = 'published'
 manager.has_permission('update')
 # > False
 ```
+
+Async
+-----
+```python
+import asyncio
+
+from permission_manager import AsyncBasePermissionManager
+
+class AsyncManager(AsyncBasePermissionManager):
+    async def has_create_permission(self) -> bool:
+        # Some IO bound operations here
+        return True
+
+async def main():
+    manager = AsyncManager()
+    result = await manager.has_permission('create')
+    print(result)
+
+asyncio.run(main())
+```
