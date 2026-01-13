@@ -1,6 +1,6 @@
 [project]
 name = "permission-manager"
-version = "0.6.0"
+version = "0.6.1"
 description = "A simple way to manage object permissions."
 authors = [
     {name = "Grigory Mishchenko", email = "grishkokot@gmail.com"},
@@ -18,6 +18,12 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/kindlycat/permission-manager"
+Documentation = "https://permission-manager.readthedocs.io"
+Repository = "https://github.com/kindlycat/permission-manager.git"
+Issues = "https://github.com/kindlycat/permission-manager/issues"
 
 [dependency-groups]
 dev = [
